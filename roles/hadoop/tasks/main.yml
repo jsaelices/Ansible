@@ -1,0 +1,59 @@
+---
+# tasks file for hadoop
+- name: Installing OpenJDK environment
+  yum: name=java-1.7.0-openjdk state=present
+
+- name: Installing OpenJDK devel package 
+  yum: name=java-1.7.0-openjdk-devel state=present
+
+- name: Installing NFS utils
+  yum: name=nfs-utils state=present
+
+- name: Mount /usr/local from NFS server
+  mount:
+    name: /usr/local
+    src: nfs.home.es:/usr/local
+    fstype: nfs
+    opts: noatime,soft,intr
+    state: mounted
+  tags:
+    - Manual
+
+- name: Create XFS filesystem
+  filesystem: fstype=xfs dev=/dev/sdb1
+  tags:
+    - Manual
+
+- name: Mount HDFS partition
+  mount:
+    name: /mnt/hdfs
+    src: /dev/sdb1
+    fstype: xfs
+    state: mounted
+
+- block:
+        - name: Creating hadoop group
+          group: name=hadoop state=present
+        - name: Creating hdfs user
+          user: name=hdfs group=hadoop generate_ssh_key=yes
+        - name: Creating yarn user
+          user: name=yarn group=hadoop generate_ssh_key=yes
+        - name: Creating mapred user
+          user: name=mapred group=hadoop
+        - name: Creating knox user
+          user: name=knox group=hadoop
+        - name: Copying hadoop environment files
+          copy: src=hadoop-env.sh dest=/etc/profile.d/hadoop-env.sh group=hadoop
+        - name: Copying mapred environment files
+          copy: src=mapred-env.sh dest=/etc/profile.d/mapred-env.sh group=hadoop
+        - name: Copying yarn environment files
+          copy: src=yarn-env.sh dest=/etc/profile.d/yarn-env.sh group=hadoop
+        - name: Creating authorized_keys file for hdfs user
+          authorized_key: 
+            user: hdfs 
+            key: "{{ lookup('file', '/home/hdfs/.ssh/id_rsa.pub') }}"
+        - name: Creating authorized_keys file for yarn user
+          authorized_key: 
+            user: yarn 
+            key: "{{ lookup('file', '/home/yarn/.ssh/id_rsa.pub') }}"
+... 

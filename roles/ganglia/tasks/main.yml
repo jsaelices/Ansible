@@ -1,0 +1,22 @@
+---
+# tasks file for ganglia
+- name: Installing ganglia packages
+  yum: name={{ item }} state=present
+  with_items:
+    - ganglia
+    - ganglia-devel
+    - ganglia-gmond
+    - ganglia-gmond-python
+- name: Copy gmond conf file
+  copy:
+    src: gmond.conf
+    dest: /etc/ganglia/gmond.conf
+    mode: 0644
+- name: Starting services
+  service:
+    name: gmond
+    state: started
+- name: Enabling gmond daemon
+  service:
+    name: gmond
+    enabled: yes

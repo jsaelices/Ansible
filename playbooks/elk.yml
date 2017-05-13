@@ -1,0 +1,4 @@
+---
+- hosts: elk_cluster
+  roles:
+    - elk

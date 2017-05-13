@@ -1,0 +1,25 @@
+---
+# tasks file for hadoop_masters
+- name: Copying main configuration files
+  copy: src=core-site.xml dest=/etc/hadoop/core-site.xml group=hadoop
+- name: Copying main configuration files
+  copy: src=hdfs-site.xml dest=/etc/hadoop/hdfs-site.xml group=hadoop
+- name: Copying main configuration files
+  copy: src=mapred-site.xml dest=/etc/hadoop/mapred-site.xml group=hadoop
+- name: Copying main configuration files
+  copy: src=yarn-site.xml dest=/etc/hadoop/yarn-site.xml group=hadoop
+- name: Copying main configuration files
+  copy: src=log4j.properties dest=/etc/hadoop/log4j.properties group=hadoop
+- name: Copying main configuration files
+  copy: src=slaves dest=/etc/hadoop/slaves group=hadoop
+- name: Copying main configuration files
+  copy: src=hosts dest=/etc/hadoop/hosts group=hadoop
+- name: Copying main configuration files
+  copy: src=hosts.exclude dest=/etc/hadoop/hosts.exclude group=hadoop
+- name: Copying main configuration files
+  copy: src=yarn.include dest=/etc/hadoop/yarn.include group=hadoop
+- name: Copying main configuration files
+  copy: src=yarn.exclude dest=/etc/hadoop/yarn.exclude group=hadoop
+- name: Installing log4j package
+  yum: name=log4j state=present
+...

@@ -1,0 +1,17 @@
+---
+- hosts: elk.home.es
+  tasks:
+  - name: Checking if Java is installed
+    yum:
+     list: jre1.8.0_131.x86_62
+    register: installed
+
+  - name: Show output
+    debug: var=installed.results
+  - name: KK
+    debug: var=installed.results[0].yumstate
+  - name: KK2
+    debug: 
+     msg: PAQUETE NO INSTALADO
+    when: installed.results|length == 0
+...

@@ -1,0 +1,94 @@
+---
+- name: Installing ELK repo
+  yum_repository:
+   name: ELK_repo
+   description: ElasticSearch repo
+   baseurl: https://artifacts.elastic.co/packages/5.x/yum
+   enabled: yes
+   gpgcheck: no
+   file: elk
+
+- name: Checking if Java is installed
+  yum: 
+   list: jre1.8.0_131.x86_64
+  register: ins
+
+- name: Copying Java package
+  copy:
+   src: jre-8u131-linux-x64.rpm
+   dest: /root/jre-8u131-linux-x64.rpm
+  when: ins.results|length == 0
+
+- name: Installing Java
+  command: yum install -y jre-8u131-linux-x64.rpm
+  args:
+   chdir: /root/
+  when: ins.results|length == 0
+
+- name: Installing Elasticsearch
+  yum: name=elasticsearch state=present
+- name: Installing Kibana
+  yum: name=kibana state=present
+- name: Installing Logstash
+  yum: name=logstash state=present
+
+- name: Inserting cluster name
+  lineinfile:
+   dest: /etc/elasticsearch/elasticsearch.yml
+   regexp: '^#cluster\.name*'
+   line: 'cluster.name: elk_cluster'
+   backrefs: yes
+
+- name: Inserting node name
+  lineinfile:
+   dest: /etc/elasticsearch/elasticsearch.yml
+   regexp: '^#node\.name*'
+   line: "node.name: {{ ansible_fqdn }}"
+   backrefs: yes
+
+- name: Inserting network host
+  lineinfile:
+   dest: /etc/elasticsearch/elasticsearch.yml
+   regexp: '^#network\.host*'
+   line: "network.host: {{ facter_ipaddress }}"
+   backrefs: yes
+
+- name: Inserting memory settings
+  lineinfile:
+   dest: /etc/elasticsearch/elasticsearch.yml
+   regexp: '^#bootstrap\.memory*'
+   line: "bootstrap.memory_lock: true"
+   backrefs: yes
+
+#- name: Inserting cluster nodes
+#  lineinfile:
+#   dest: /etc/elasticsearch/elasticsearch.yml
+#   regexp: '^#discovery\.zen\.ping\.unicast\.hosts'
+#   line: "discovery.zen.ping.unicast.hosts: elk-nodes.home.es"
+#   backrefs: yes
+#
+#- name: Inserting quorum settings
+#  lineinfile:
+#   dest: /etc/elasticsearch/elasticsearch.yml
+#   regexp: '^#discovery\.zen\.minimum*'
+#   line: "discovery.zen.minimum_master_nodes: 2"
+#   backrefs: yes
+
+- name: Starting elasticsearch service
+  service:
+   name: elasticsearch
+   state: started
+   enabled: yes
+
+- name: Starting kibana service
+  service:
+   name: kibana
+   state: started
+   enabled: yes
+
+- name: Starting logstash service
+  service: 
+   name: logstash
+   state: started
+   enabled: yes
+...

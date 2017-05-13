@@ -1,0 +1,39 @@
+---
+- name: Installing DKMS ZFS repo
+  yum_repository:
+   name: ZFS_DKMS
+   description: DKMS packages for including support for ZFS filesystem
+   baseurl: http://download.zfsonlinux.org/epel/7/$basearch/
+   enabled: no
+   gpgcheck: no
+   file: zfs_dkms
+
+- name: Installing Kmod ZFS repo
+  yum_repository:
+   name: ZFS_Kmod
+   description: Kmod ZFS packages for use instead of DKMS
+   baseurl: http://download.zfsonlinux.org/epel/7/kmod/$basearch/
+   enabled: yes
+   gpgcheck: no
+   file: zfs_kmod
+
+- name: Installing ZFS on the system
+  yum: name=zfs state=present
+
+- name: Starting ZFS services
+  service: name={{ item }} state=started
+  with_items:
+   - zfs-import-scan.service
+   - zfs-mount.service
+   - zfs-share.service
+   - zfs-zed.service
+
+- name: Enabling ZFS services
+  service: name={{ item }} enabled=yes
+  with_items:
+   - zfs-import-scan.service
+   - zfs-mount.service
+   - zfs-share.service
+   - zfs-zed.service
+   - zfs.target
+...

@@ -1,0 +1,4 @@
+---
+- hosts: zfs.home.es
+  roles:
+    - zfs

@@ -1,0 +1,2 @@
+tests /root/tests
+tftpboot /var/lib/tftpboot

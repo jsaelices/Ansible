@@ -1,0 +1,31 @@
+---
+# tasks file for hadoop_ambari
+- name: Installing Ambari repos from HDP
+  yum_repository:
+   name: ambari
+   description: Ambari HDP repo
+   baseurl: http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.4.1.0
+   gpgcheck: no
+   file: ambari
+  tags:
+    - ambari
+
+- name: Installing HDP repos
+  yum_repository:
+   name: HDP
+   description: HDP repo
+   baseurl: http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.4.2.0
+   gpgcheck: no
+   file: HDP
+
+- name: Installing Ambari
+  yum: name=ambari-server state=present
+  tags:
+    - ambari 
+
+- name: Installing NTP service
+  yum: name=ntp state=present
+  
+- name: Starting NTP service
+  service: name=ntpd state=started enabled=yes
+...

@@ -1,0 +1,71 @@
+---
+- name: Installing EPEL repo
+  yum_repository:
+   name: EPEL 
+   description: Extra Packages for Enterprise Linux
+   baseurl: http://download.fedoraproject.org/pub/epel/7/$basearch/
+   gpgcheck: no
+   file: epel
+  tags:
+    - EPEL
+
+- name: Installing elrepo repo
+  yum_repository:
+   name: elrepo
+   description: Extra packages from elrepo
+   baseurl: http://elrepo.org/linux/elrepo/el7/$basearch/
+   gpgcheck: no
+   file: elrepo
+  tags:
+    - ELREPO
+
+- name: Installing internal repo
+  yum_repository:
+   name: internal
+   description: Internal repo for own packages
+   baseurl: http://node1.home.es/internal
+   gpgcheck: no
+   file: internal
+  tags:
+   - INTERNAL
+
+- block:
+    - name: Installing facter for Ansible to get facts about machine
+      yum: name=facter state=present
+    - name: Installing rubygem-json
+      yum: name=rubygem-json state=present
+    - name: Installing bash-completion-extras
+      yum: name=bash-completion-extras state=present
+    - name: Installing NTP service
+      yum: name=ntp state=present
+    - name: Enabling NTP service
+      service: name=ntpd enabled=yes
+    - name: Installing cdargs
+      yum: name=cdargs state=present
+
+- block: 
+    - name: Setting hostname
+      hostname: name={{ inventory_hostname}}
+    - name: Copying bashrc for root
+      copy: src=bashrc.skel dest=/root/.bashrc
+    - name: Copying bashrc for skel
+      copy: src=bashrc.skel dest=/etc/skel/.bashrc
+    - name: Checking if .ssh dir exists
+      stat:
+       path: /root/.ssh
+      register: st
+    - name: Creating /root/.ssh directory
+      file:
+       path: /root/.ssh
+       state: directory
+       mode: 0600
+      when: st.stat.isdir is not defined 
+    - name: Copying config file for ssh client
+      copy: src=config dest=/root/.ssh/config
+    - name: Copying public key for ssh without password
+      copy: src=authorized_keys dest=/root/.ssh/authorized_keys
+    - name: Copying NTP main configuration file
+      copy: src=ntp.conf dest=/etc/ntp.conf
+    - name: Starting NTP service
+      service: name=ntpd state=started
+...

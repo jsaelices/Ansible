@@ -1,0 +1,4 @@
+---
+- hosts: hadoop_masters
+  roles:
+    - hadoop_masters
